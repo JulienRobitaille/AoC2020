@@ -1,11 +1,11 @@
 from pathlib import Path
-from typing import List
+from typing import Dict, List
 
 input_file = Path(__file__).parent.joinpath("input.txt")
 
 
-def parse(rules: List[str]):
-    rulebook = {}
+def parse(rules: List[str]) -> Dict[str, Dict[str, int]]:
+    rulebook: Dict[str, Dict[str, int]] = {}
     for rule in rules:
         parts = rule.split(" contain ")
         id = parts[0].replace("bags", "bag").strip()
@@ -23,9 +23,8 @@ def parse(rules: List[str]):
     return rulebook
 
 
-def count_bag(bag_id, rulebook):
-    # print(bag_id)
-    found_bag_ids = []
+def count_bag(bag_id: str, rulebook: Dict[str, Dict[str, int]]) -> List[str]:
+    found_bag_ids: List[str] = []
     for bag in rulebook:
         inner_bag = rulebook[bag]
         if bag_id in inner_bag:
@@ -34,7 +33,7 @@ def count_bag(bag_id, rulebook):
     return found_bag_ids
 
 
-def count_bag2(bag_id, rulebook):
+def count_bag2(bag_id: str, rulebook: Dict[str, Dict[str, int]]) -> int:
     count = 0
     inner_bags = rulebook[bag_id]
     for bag in inner_bags:
@@ -43,13 +42,13 @@ def count_bag2(bag_id, rulebook):
     return count
 
 
-def solve1(rules: List[str]):
+def solve1(rules: List[str]) -> int:
     rulebook = parse(rules)
     count = set(count_bag("shiny gold bag", rulebook))
     return len(count)
 
 
-def solve2(rules: List[str]):
+def solve2(rules: List[str]) -> int:
     rulebook = parse(rules)
     return count_bag2("shiny gold bag", rulebook)
 
@@ -57,5 +56,4 @@ def solve2(rules: List[str]):
 with open(input_file) as input:
     rules = input.read().strip().split("\n")
     print("Solve 1:", solve1(rules))
-    print("Solve 1:", solve2(rules))
-    # print("Solve 2:", sum(solve2(lines)))
+    print("Solve 2:", solve2(rules))
