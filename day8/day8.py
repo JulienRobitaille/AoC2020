@@ -1,51 +1,48 @@
 from pathlib import Path
-from typing import List, final
-from copy import copy
+from typing import List, Tuple
 
 input_file = Path(__file__).parent.joinpath("input.txt")
 
 
-def solve(instructions: List[str]):
-    accumulator = 0
+def solve(instructions: List[str]) -> Tuple[int, int]:
     index = 0
-    instruction = instructions[index]
-    runned_instruction = []
-    try:
-        while index not in runned_instruction:
-            runned_instruction.append(index)
+    index_history: List[int] = []
+    accumulator = 0
+    while index < len(instructions) and index not in index_history:
+        instruction: str = instructions[index]
+        ops, _val = instruction.split(" ")
+        val: int = int(_val)
+        index_history.append(index)
 
-            ops, _val = instruction.split(" ")
-            val = int(_val)
-
-            if ops == "nop":
-                index = index + 1
-            if ops == "jmp":
-                index = index + val
-            if ops == "acc":
-                index = index + 1
-                accumulator = accumulator + val
-
-            instruction = instructions[index]
-    except:
-        raise Exception(accumulator)
-
-    return accumulator
+        if ops == "nop":
+            index = index + 1
+        if ops == "jmp":
+            index = index + val
+        if ops == "acc":
+            index = index + 1
+            accumulator = accumulator + val
+    return index, accumulator
 
 
-def solve2(instructions: List[str]):
+def solve2(instructions: List[str]) -> int:
     invert = {"jmp": "nop", "nop": "jmp"}
-    for i, instruction in enumerate(instructions):
+
+    for index, _ in enumerate(instructions):
+        instruction = instructions[index]
         ops, _ = instruction.split(" ")
-        instructions_candidate = copy(instructions)
-        try:
-            if ops == "nop" or ops == "jmp":
-                instructions_candidate[i] = instruction.replace(ops, invert[ops])
-                _ = solve(instructions_candidate)
-        except Exception as err:
-            return err  # This is an ugly hack
+        if ops in invert:
+            instructions[index] = instructions[index].replace(ops, invert[ops])
+            resulting_index, accumulator = solve(instructions)
+
+            if resulting_index >= len(instructions):
+                return accumulator
+            else:
+                instructions[index] = instruction
+    return 0
 
 
 with open(input_file) as input:
     instructions = input.read().strip().split("\n")
-    print("Solve 1:", solve(instructions))
-    print("Solve 1:", solve2(instructions))
+    index, acc = solve(instructions)
+    print("Solve 1:", acc)
+    print("Solve 2:", solve2(instructions))
